@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pizza Hut Taranagar - Admin</title>
   <style>
     body {
@@ -12,19 +12,19 @@
       padding: 20px;
     }
     .box {
-      max-width: 420px;
-      margin: 40px auto;
+      max-width: 650px;
+      margin: 25px auto;
       background: white;
-      padding: 24px;
+      padding: 20px;
       border-radius: 12px;
       box-shadow: 0 2px 12px #ddd;
     }
-    h1 { color: #c62828; text-align: center; }
+    h1, h2 { color: #c62828; }
     input, button {
       box-sizing: border-box;
       width: 100%;
       padding: 12px;
-      margin: 8px 0;
+      margin: 7px 0;
       font-size: 16px;
     }
     button {
@@ -32,32 +32,141 @@
       color: white;
       border: 0;
       border-radius: 6px;
-      cursor: pointer;
     }
+    .order {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      overflow-wrap: anywhere;
+    }
+    #dashboard { display: none; }
     #message { overflow-wrap: anywhere; }
   </style>
 </head>
 <body>
   <div class="box">
-    <h1>🍕 Admin Panel</h1>
-    <p>अपने Admin ईमेल और पासवर्ड से लॉगिन करें।</p>
+    <h1>🍕 Pizza Hut Taranagar</h1>
+    <h2>Admin Login</h2>
 
     <form id="loginForm">
-      <input id="email" type="email"
-        placeholder="Admin Email" required>
-      <input id="password" type="password"
-        placeholder="Password" required>
+      <input id="email" type="email" placeholder="Admin Email" required>
+      <input id="password" type="password" placeholder="Password" required>
       <button type="submit">Login</button>
     </form>
 
     <p id="message" role="status"></p>
+
+    <div id="dashboard">
+      <h2>नए ऑर्डर</h2>
+      <button id="refreshBtn" type="button">ऑर्डर Refresh करें</button>
+      <button id="logoutBtn" type="button">Logout</button>
+      <div id="orders"></div>
+    </div>
   </div>
 
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
+  <script type="module">
+    import { initializeApp } from
+      "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import {
+      getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+    } from
+      "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import {
+      getFirestore, collection, getDocs, query, orderBy
+    } from
+      "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    // Firebase Console से अपनी Web App Config यहाँ डालें।
+    const firebaseConfig = {
+  apiKey: "AIzaSyAeYXLgzwV-3fzKH49KtL1I3EM6ihbr3b0",
+  authDomain: "pizza-hut-taranagar.firebaseapp.com",
+  projectId: "pizza-hut-taranagar",
+  storageBucket: "pizza-hut-taranagar.firebasestorage.app",
+  messagingSenderId: "940386843800",
+  appId: "1:940386843800:web:799b50087c6bcb8cfba4ed"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loginForm = document.getElementById("loginForm");
+    const message = document.getElementById("message");
+    const dashboard = document.getElementById("dashboard");
+    const ordersDiv = document.getElementById("orders");
+
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      document.getElementById("message").textContent =
-        "Firebase कनेक्शन अभी सेट नहीं हुआ है। कृपया अगले सेटअप स्टेप तक प्रतीक्षा करें।";
+      message.textContent = "Login हो रहा है...";
+      try {
+        await signInWithEmailAndPassword(
+          auth,
+          document.getElementById("email").value.trim(),
+          document.getElementById("password").value
+        );
+      } catch (error) {
+        message.textContent = "Login नहीं हुआ। ईमेल, पासवर्ड और Firebase Config जाँचें।";
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      const loggedIn = !!user;
+      loginForm.style.display = loggedIn ? "none" : "block";
+      dashboard.style.display = loggedIn ? "block" : "none";
+
+      if (loggedIn) {
+        message.textContent = "लॉगिन हो गया।";
+        loadOrders();
+      }
+    });
+
+    async function loadOrders() {
+      ordersDiv.textContent = "ऑर्डर लोड हो रहे हैं...";
+      try {
+        const result = await getDocs(
+          query(collection(db, "orders"), orderBy("createdAt", "desc"))
+        );
+
+        ordersDiv.replaceChildren();
+
+        if (result.empty) {
+          ordersDiv.textContent = "अभी कोई ऑर्डर नहीं मिला।";
+          return;
+        }
+
+        result.forEach((docSnap) => {
+          const order = docSnap.data();
+          const card = document.createElement("div");
+          card.className = "order";
+
+          const title = document.createElement("h3");
+          title.textContent = "ऑर्डर #" + docSnap.id;
+          card.appendChild(title);
+
+          const details = document.createElement("p");
+          details.textContent =
+            "नाम: " + (order.name || "") +
+            "\nमोबाइल: " + (order.phone || "") +
+            "\nपता: " + (order.address || "") +
+            "\nखाना: " + (order.items || "") +
+            "\nकुल: ₹" + (order.total ?? "") +
+            "\nभुगतान: " + (order.payment || "") +
+            "\nस्टेटस: " + (order.status || "नया");
+          details.style.whiteSpace = "pre-line";
+          card.appendChild(details);
+          ordersDiv.appendChild(card);
+        });
+      } catch (error) {
+        ordersDiv.textContent =
+          "ऑर्डर नहीं खुल सके। Firestore Security Rules और orders collection जाँचें।";
+      }
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", loadOrders);
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
     });
   </script>
 </body>
