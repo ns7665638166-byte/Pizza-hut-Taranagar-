@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pizza Hut Taranagar</title>
+<style>
+body{font-family:Arial;margin:0;background:#fff5f5;color:#222}
+header,footer{background:#d90016;color:white;text-align:center;padding:18px}
+h2{color:#d90016}
+main{padding:15px;max-width:800px;margin:auto}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:white;border:1px solid #ddd;border-radius:10px;padding:14px;text-align:center}
+.food{font-size:38px}
+button{background:#d90016;color:white;border:0;padding:10px;border-radius:7px;font-weight:bold}
+input,textarea,select{width:100%;padding:11px;margin:7px 0 13px;box-sizing:border-box}
+#cart{background:white;padding:14px;border-radius:10px;margin-top:20px}
+@media(min-width:600px){.menu{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>🍕 Pizza Hut Taranagar</h1>
+<p>Hot & Fresh • Great Food</p>
+</header>
+<main>
+<h2>🍽️ हमारा मेन्यू</h2>
+<div class="menu" id="menu"></div>
+
+<div id="cart">
+<h2>🛒 आपका Cart</h2>
+<div id="items">Cart खाली है।</div>
+<h3>कुल: ₹<span id="total">0</span></h3>
+
+<h2>ग्राहक की जानकारी</h2>
+<form id="form">
+<label>नाम</label>
+<input id="name" required>
+<label>मोबाइल नंबर</label>
+<input id="phone" type="tel" pattern="[0-9]{10}" required>
+<label>डिलीवरी का पता</label>
+<textarea id="address" required></textarea>
+<label>पेमेंट</label>
+<select id="payment">
+<option>Cash on Delivery</option>
+<option>UPI</option>
+</select>
+<button type="submit">ऑर्डर का सारांश देखें</button>
+</form>
+<p id="msg"></p>
+</div>
+</main>
+<footer>
+<p>Pizza Hut Taranagar • Taranagar, Rajasthan</p>
+</footer>
+<script>
+const products=[
+["Margherita Pizza",149,"🍕"],
+["Veg Pizza",179,"🍕"],
+["Paneer Pizza",199,"🍕"],
+["Veg Burger",79,"🍔"],
+["Chicken Burger",99,"🍔"],
+["Veg Sandwich",59,"🥪"],
+["Chicken Sandwich",79,"🥪"],
+["Veg Momos",69,"🥟"],
+["Chicken Momos",89,"🥟"],
+["French Fries",49,"🍟"],
+["Vada Pav",39,"🍔"],
+["Cold Coffee",69,"🥤"]
+];
+let cart=[];
+const menu=document.getElementById("menu");
+products.forEach((p,i)=>{
+let d=document.createElement("div");
+d.className="card";
+d.innerHTML=`<div class="food">${p[2]}</div><h3>${p[0]}</h3><p>₹${p[1]}</p>`;
+let b=document.createElement("button");
+b.textContent="Add to Cart";
+b.onclick=()=>{cart.push(i);render()};
+d.appendChild(b);menu.appendChild(d);
+});
+function render(){
+let counts={};
+cart.forEach(i=>counts[i]=(counts[i]||0)+1);
+document.getElementById("items").innerHTML=Object.keys(counts).map(i=>
+products[i][0]+" × "+counts[i]+" — ₹"+products[i][1]*counts[i]
+).join("<br>")||"Cart खाली है।";
+document.getElementById("total").textContent=cart.reduce((s,i)=>s+products[i][1],0);
+}
+document.getElementById("form").onsubmit=e=>{
+e.preventDefault();
+if(!cart.length){alert("पहले खाना Cart में जोड़ें।");return}
+document.getElementById("msg").textContent=
+"डेमो सारांश तैयार है। यह ऑर्डर अभी दुकान को नहीं भेजा गया है।";
+};
+</script>
+</body>
+</html>
