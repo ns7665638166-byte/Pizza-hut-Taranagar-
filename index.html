@@ -114,6 +114,7 @@ const db = getFirestore(app);
 ];
 let cart=[];
 const menu=document.getElementById("menu");
+  console.log("Menu element:", menu);
 products.forEach((p,i)=>{
 let d=document.createElement("div");
 d.className="card";
