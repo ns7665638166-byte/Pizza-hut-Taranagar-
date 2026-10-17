@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ho<!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
@@ -44,7 +44,36 @@ input,textarea,select{width:100%;padding:11px;margin:7px 0 13px;box-sizing:borde
 <select id="payment">
 <option>Cash on Delivery</option>
 <option>UPI</option>
-</select>
+</select><div id="upiDetails" style="display:none; text-align:center; margin:20px 0; padding:15px; border:2px solid #e63946; border-radius:12px;">
+  <h3>📲 UPI से भुगतान करें</h3>
+
+  <p>UPI ID: <strong>paytm.s2gjs9u@pty</strong></p>
+
+  <img
+    src="upi-qr.jpg"
+    alt="Pizza Hut Taranagar UPI QR Code"
+    style="width:220px; max-width:100%;"
+  >
+
+  <p>Paytm या किसी UPI ऐप से QR Code स्कैन करें।</p>
+
+  <p style="color:#b00020;">
+    भुगतान करने के बाद अपने पेमेंट की पुष्टि दुकान से करवाएँ।
+  </p>
+</div>
+
+<script>
+  const paymentSelect = document.getElementById("payment");
+  const upiDetails = document.getElementById("upiDetails");
+
+  function toggleUPI() {
+    upiDetails.style.display =
+      paymentSelect.value === "UPI" ? "block" : "none";
+  }
+
+  paymentSelect.addEventListener("change", toggleUPI);
+  toggleUPI();
+</script>
 <button type="submit">ऑर्डर का सारांश देखें</button>
 </form>
 <p id="msg"></p>
