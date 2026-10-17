@@ -82,8 +82,23 @@ input,textarea,select{width:100%;padding:11px;margin:7px 0 13px;box-sizing:borde
 <footer>
 <p>Pizza Hut Taranagar • Taranagar, Rajasthan</p>
 </footer>
-<script>
-const products=[
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "admin.html से अपना apiKey यहाँ डालें",
+  authDomain: "pizza-hut-taranagar.firebaseapp.com",
+  projectId: "pizza-hut-taranagar",
+  storageBucket: "pizza-hut-taranagar.firebasestorage.app",
+  messagingSenderId: "admin.html से अपना messagingSenderId यहाँ डालें",
+  appId: "admin.html से अपना appId यहाँ डालें"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+  const products=[
 ["Margherita Pizza",149,"🍕"],
 ["Veg Pizza",179,"🍕"],
 ["Paneer Pizza",199,"🍕"],
@@ -116,16 +131,7 @@ products[i][0]+" × "+counts[i]+" — ₹"+products[i][1]*counts[i]
 ).join("<br>")||"Cart खाली है।";
 document.getElementById("total").textContent=cart.reduce((s,i)=>s+products[i][1],0);
 }
-document.getElementById("form").onsubmit = async (e) => {
-  e.preventDefault();
 
-  if (!cart.length) {
-    alert("पहले खाना Cart में जोड़ें।");
-    return;
-  }
-
-  document.getElementById("msg").textContent =
-    "ऑर्डर सिस्टम सेटअप हो रहा है। अभी ऑर्डर भेजा नहीं गया है।";
 };</script>
 
 </body>  
